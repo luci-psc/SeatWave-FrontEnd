@@ -1,0 +1,27 @@
+#loginForm {
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+.input-group {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+button {
+  margin-top: 1rem;
+  cursor: pointer;
+  color: gray;
+}
+
+.book-button.active {
+  background: #4ea6ff;
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(78, 166, 255, 0.4);
+}

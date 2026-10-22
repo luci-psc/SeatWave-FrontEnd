@@ -1,0 +1,85 @@
+/* src/styles/auth.css */
+.auth-page {
+    --aqua-deep:   #0a2e2e;
+    --aqua:        #14b8a6;
+    --aqua-bright: #2dd4bf;
+    --aqua-foam:   #99f6e4;
+    --aqua-mist:   #ccfbf1;
+
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background:
+            radial-gradient(1000px 500px at 80% -10%, rgba(45, 212, 191, 0.25), transparent 60%),
+            radial-gradient(800px 450px at -10% 10%, rgba(20, 184, 166, 0.18), transparent 55%),
+            linear-gradient(180deg, #04201f, #0a2e2e 60%, #04201f);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 2.25rem;
+    border-radius: 18px;
+    background: rgba(10, 46, 46, 0.55);
+    border: 1px solid rgba(45, 212, 191, 0.18);
+    box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.auth-card h1 {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-display, sans-serif);
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: #fff;
+    text-align: center;
+}
+
+.auth-card .input-group label { color: var(--aqua-mist); }
+
+.auth-card .input-group input {
+    width: 100%;
+    padding: 0.7rem 0.85rem;
+    color: #eafdfb;
+    background: rgba(4, 32, 31, 0.6);
+    border: 1px solid rgba(45, 212, 191, 0.25);
+    border-radius: 10px;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+.auth-card .input-group input:focus {
+    outline: none;
+    border-color: var(--aqua-bright);
+    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.18);
+}
+
+.auth-button {
+    padding: 0.8rem 1.5rem;
+    font-weight: 600;
+    color: #04201f;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(120deg, var(--aqua), var(--aqua-bright));
+    box-shadow: 0 10px 24px -10px rgba(20, 184, 166, 0.7);
+    transition: transform 0.16s ease, filter 0.16s ease;
+}
+.auth-button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.08); }
+.auth-button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.auth-error {
+    padding: 0.6rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #fecaca;
+    background: rgba(220, 38, 38, 0.15);
+    border: 1px solid rgba(248, 113, 113, 0.4);
+}
+
+.auth-switch { text-align: center; font-size: 0.9rem; color: var(--aqua-mist); }
+.auth-switch a { color: var(--aqua-bright); cursor: pointer; text-decoration: underline; }

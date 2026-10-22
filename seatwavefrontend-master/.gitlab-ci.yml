@@ -1,0 +1,127 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  FRONTEND_IMAGE_NAME: seatwave-frontend
+
+# ─────────────────────────────────────────────
+# 1. BUILD
+# ─────────────────────────────────────────────
+build:
+  stage: build
+  image: node:20-alpine
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 hour
+
+# ─────────────────────────────────────────────
+# 2. TEST (E2E via Cypress)
+#    The Cypress container SHARES the backend container's network namespace
+#    (--network container:seatwave-e2e), so both are reachable on localhost —
+#    same as the local dev setup (localhost:5173 + localhost:8080). This makes
+#    the SameSite=Lax auth cookie behave first-party, so admin login works.
+# ─────────────────────────────────────────────
+e2e:
+  stage: test
+  image: docker:24
+  needs: [build]
+  variables:
+    DOCKER_HOST: unix:///var/run/docker.sock
+  script:
+    # ── 0. Clean slate ──
+    - docker rm -f seatwave-e2e seatwave-cypress 2>/dev/null || true
+
+    # ── 1. Start the backend. Because Cypress will SHARE this container's
+    #       network namespace, the frontend (3000) and backend (8080) both live
+    #       on the same localhost. CORS same-origin, cookie same-site.
+    - |
+      docker run -d --name seatwave-e2e \
+        -e DB_URL="$DB_URL" \
+        -e DB_USERNAME="$DB_USERNAME" \
+        -e DB_PASSWORD="$DB_PASSWORD" \
+        -e JWT_SECRET="$JWT_SECRET" \
+        -e CORS_ALLOWED_ORIGIN="http://localhost:3000" \
+        -e APP_SECURITY_COOKIE_SECURE="false" \
+        seatwave:latest
+
+    # ── 2. Create the Cypress container sharing the backend's network namespace ──
+    - |
+      docker run -d --name seatwave-cypress \
+        --network container:seatwave-e2e \
+        -e CYPRESS_apiUrl="http://localhost:8080" \
+        -e CYPRESS_adminEmail="$CYPRESS_ADMIN_EMAIL" \
+        -e CYPRESS_adminPassword="$CYPRESS_ADMIN_PASSWORD" \
+        -e VITE_API_BASE_URL="http://localhost:8080" \
+        -w /e2e \
+        --entrypoint sh \
+        cypress/included:latest -c 'sleep 1200'
+
+    # ── 3. Copy the checked-out project into the Cypress container ──
+    - docker cp . seatwave-cypress:/e2e
+
+    # ── 4. Wait for backend, build frontend, serve, run Cypress (all on localhost) ──
+    - |
+      docker exec seatwave-cypress sh -c '
+        set -e
+        cd /e2e
+
+        echo "Waiting for backend at http://localhost:8080 ..."
+        UP=""
+        for i in $(seq 1 30); do
+          OUT=$(wget -S -O /dev/null --timeout=3 http://localhost:8080/ 2>&1 || true)
+          if echo "$OUT" | grep -qE "HTTP/[0-9.]+ [0-9]{3}"; then
+            echo "Backend responded:"; echo "$OUT" | grep -E "HTTP/" | head -1
+            UP="yes"; break
+          fi
+          echo "  attempt $i/30 — retrying in 2 s"; sleep 2
+        done
+        [ -n "$UP" ] || { echo "Backend never answered HTTP"; exit 1; }
+
+        if [ -f package-lock.json ]; then npm ci; else echo "no lockfile -> npm install"; npm install; fi
+        npm run build
+        npx serve -s dist -l 3000 &
+
+        echo "Waiting for frontend ..."
+        for i in $(seq 1 15); do wget -q -O /dev/null http://localhost:3000 && break; sleep 1; done
+
+        cypress run --config-file cypress.config.js --config baseUrl=http://localhost:3000
+      '
+
+    # ── 5. Copy artifacts back out for GitLab ──
+    - docker cp seatwave-cypress:/e2e/cypress/screenshots ./cypress/screenshots 2>/dev/null || true
+    - docker cp seatwave-cypress:/e2e/cypress/videos ./cypress/videos 2>/dev/null || true
+  after_script:
+    - docker logs seatwave-e2e 2>&1 | tail -n 30 || true
+    - docker rm -f seatwave-e2e seatwave-cypress 2>/dev/null || true
+  artifacts:
+    when: always
+    paths:
+      - cypress/screenshots/
+      - cypress/videos/
+    expire_in: 3 days
+  only:
+    - master
+
+# ─────────────────────────────────────────────
+# 3. DEPLOY
+# ─────────────────────────────────────────────
+deploy:
+  stage: deploy
+  image: docker:24
+  variables:
+    DOCKER_HOST: unix:///var/run/docker.sock
+  needs:
+    - job: build
+      artifacts: true
+    - job: e2e
+  environment: production
+  script:
+    - docker compose -p seatwaves-frontend up -d --build app
+  only:
+    - master

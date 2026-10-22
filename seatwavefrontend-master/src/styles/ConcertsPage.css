@@ -1,0 +1,384 @@
+/* ============================================================
+   SeatWave — Deep Ocean theme
+   Drop-in replacement for ConcertsPage.css.
+   Keep ConcertForm.jsx and ConcertCard.jsx importing this file.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+    /* Blue scale: midnight → surface → bright crest */
+    --abyss:        #060d1c;
+    --deep:         #0a1730;
+    --navy:         #102347;
+    --steel:        #1b3a6b;
+    --wave:         #2f6fd4;
+    --crest:        #4ea6ff;
+    --foam:         #8fd1ff;
+    --mist:         #cfe6ff;
+
+    --text:         #eaf2ff;
+    --text-soft:    #9fb6d8;
+    --text-faint:   #5f7aa3;
+
+    --danger:       #ff5d6c;
+    --success:      #2fd4a7;
+
+    --radius:       16px;
+    --radius-sm:    10px;
+    --ring:         0 0 0 1px rgba(78, 166, 255, 0.18);
+    --shadow:       0 18px 40px -18px rgba(0, 0, 0, 0.7);
+    --glass:        rgba(16, 35, 71, 0.55);
+
+    --font-display: 'Sora', system-ui, sans-serif;
+    --font-body:    'Inter', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--text);
+    background:
+            radial-gradient(1200px 600px at 80% -10%, rgba(47, 111, 212, 0.25), transparent 60%),
+            radial-gradient(900px 500px at -10% 10%, rgba(78, 166, 255, 0.12), transparent 55%),
+            linear-gradient(180deg, var(--abyss), var(--deep) 60%, var(--abyss));
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+/* ---------- App shell + nav ---------- */
+.App { min-height: 100vh; }
+
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    background: rgba(6, 13, 28, 0.7) !important;
+    border-bottom: 1px solid rgba(78, 166, 255, 0.14);
+}
+
+/* ---------- Layout wrappers ---------- */
+.page-wrapper {
+    max-width: 920px;
+    margin: 0 auto;
+}
+
+.concert-container {
+    max-width: 920px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* When the list renders many cards, give each one breathing room */
+.concert-container .concert-container {
+    margin: 0 auto;
+    padding: 0;
+}
+
+/* ---------- Header with animated wave ---------- */
+.concert-header {
+    position: relative;
+    overflow: hidden;
+    padding: 2.25rem 2rem;
+    border-radius: var(--radius);
+    background: linear-gradient(120deg, var(--navy), var(--steel) 55%, var(--wave));
+    box-shadow: var(--shadow), var(--ring);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.concert-header::after {
+    content: '';
+    position: absolute;
+    inset: -50% -10% auto -10%;
+    height: 200%;
+    background:
+            radial-gradient(60% 40% at 20% 30%, rgba(143, 209, 255, 0.22), transparent 60%),
+            radial-gradient(50% 35% at 80% 60%, rgba(47, 111, 212, 0.35), transparent 60%);
+    animation: drift 14s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+@keyframes drift {
+    from { transform: translate3d(-3%, -2%, 0) rotate(-1deg); }
+    to   { transform: translate3d(3%, 2%, 0) rotate(1deg); }
+}
+
+.concert-header h1 {
+    margin: 0;
+    position: relative;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    letter-spacing: -0.02em;
+    color: #fff;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- Badge ---------- */
+.badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--mist);
+    background: rgba(6, 13, 28, 0.45);
+    border: 1px solid rgba(143, 209, 255, 0.35);
+    backdrop-filter: blur(6px);
+}
+
+/* ---------- Main content panel ---------- */
+.concert-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.75rem;
+    border-radius: var(--radius);
+    background: var(--glass);
+    border: 1px solid rgba(78, 166, 255, 0.12);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* ---------- Cards / sections ---------- */
+.info-card,
+.description-section,
+.tickets-section {
+    padding: 1.25rem 1.4rem;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(180deg, rgba(27, 58, 107, 0.35), rgba(16, 35, 71, 0.25));
+    border: 1px solid rgba(78, 166, 255, 0.1);
+}
+
+.info-card h3,
+.description-section h3,
+.tickets-section h3 {
+    margin: 0 0 0.9rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--crest);
+}
+
+.info-card p,
+.description-section p {
+    margin: 0.35rem 0;
+    color: var(--text-soft);
+    line-height: 1.6;
+}
+
+.info-card strong,
+.description-section strong {
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* ---------- Ticket grid ---------- */
+.ticket-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+}
+
+.ticket-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.9rem 1rem;
+    border-radius: var(--radius-sm);
+    background: rgba(6, 13, 28, 0.4);
+    border: 1px solid rgba(78, 166, 255, 0.14);
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.ticket-item:hover {
+    transform: translateY(-3px);
+    border-color: rgba(143, 209, 255, 0.45);
+    box-shadow: 0 10px 24px -12px rgba(78, 166, 255, 0.5);
+}
+
+.ticket-item span {
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+}
+
+.ticket-item strong {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--foam);
+}
+
+/* ---------- Form inputs ---------- */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.input-group label {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-soft);
+}
+
+.input-group input,
+.input-group textarea,
+.input-group select,
+.tickets-section input,
+.tickets-section select {
+    width: 100%;
+    padding: 0.7rem 0.85rem;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--text);
+    background: rgba(6, 13, 28, 0.55) !important;
+    border: 1px solid rgba(78, 166, 255, 0.2) !important;
+    border-radius: var(--radius-sm) !important;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.input-group input::placeholder,
+.tickets-section input::placeholder {
+    color: var(--text-faint);
+}
+
+.input-group input:focus,
+.input-group textarea:focus,
+.input-group select:focus,
+.tickets-section input:focus,
+.tickets-section select:focus {
+    outline: none;
+    border-color: var(--crest) !important;
+    box-shadow: 0 0 0 3px rgba(78, 166, 255, 0.18);
+    background: rgba(6, 13, 28, 0.75) !important;
+}
+
+.input-group textarea { resize: vertical; min-height: 90px; }
+
+/* ---------- Buttons ---------- */
+.book-button {
+    position: relative;
+    padding: 0.8rem 1.5rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #fff;
+    cursor: pointer;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(120deg, var(--wave), var(--crest));
+    box-shadow: 0 10px 24px -10px rgba(47, 111, 212, 0.7);
+    transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+}
+
+.book-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.08);
+    box-shadow: 0 16px 30px -10px rgba(78, 166, 255, 0.8);
+}
+
+.book-button:active:not(:disabled) { transform: translateY(0); }
+
+.book-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Nav buttons: lighter, secondary treatment */
+nav .book-button {
+    background: rgba(27, 58, 107, 0.5);
+    border: 1px solid rgba(78, 166, 255, 0.25);
+    box-shadow: none;
+}
+
+nav .book-button:hover {
+    background: rgba(47, 111, 212, 0.55);
+    filter: none;
+}
+
+/* "+ Add Ticket Tier" secondary button */
+.tickets-section button[type="button"] {
+    padding: 0.55rem 1rem;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--foam);
+    background: transparent;
+    border: 1px dashed rgba(143, 209, 255, 0.4);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.16s ease, border-color 0.16s ease;
+}
+
+.tickets-section button[type="button"]:hover {
+    background: rgba(78, 166, 255, 0.1);
+    border-color: var(--crest);
+}
+
+/* ---------- Status badges ---------- */
+.badge[style*="2ecc71"],
+.badge[style*="green"] {
+    background: rgba(47, 212, 167, 0.15) !important;
+    border-color: rgba(47, 212, 167, 0.5) !important;
+    color: var(--success) !important;
+}
+
+/* ---------- Entrance animation ---------- */
+.concert-main,
+.concert-header {
+    animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.concert-main { animation-delay: 0.06s; }
+
+@keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+    .concert-header { padding: 1.5rem 1.25rem; }
+    .concert-main { padding: 1.25rem; }
+    .concert-container { padding: 0 1rem; }
+}
+
+.concert-grid {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);   /* exactly 2 per row */
+    gap: 1.5rem;
+    align-items: start;                       /* cards don't stretch to match the tallest */
+}
+
+/* card inside the grid: drop the auto-centering margins so it fills its cell */
+.concert-grid .concert-container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+@media (max-width: 800px) {
+    .concert-grid { grid-template-columns: 1fr; }   /* stack to 1 column on narrow screens */
+}
